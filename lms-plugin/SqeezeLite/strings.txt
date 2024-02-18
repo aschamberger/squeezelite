@@ -1,0 +1,6 @@
+PLUGIN_SQUEEZELITE
+	EN	SqueezeLite
+    
+PLUGIN_SQUEEZELITE_DESC
+	DE	Konfiguriert eine neue Player ID (99), um Line-In an SqueezeLite zu unterstützen
+	EN	Adds a new player id (99) to enable line in with SqueezeLite
