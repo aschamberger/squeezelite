@@ -197,7 +197,9 @@ static void sendSTAT(const char *event, u32_t server_timestamp) {
 	packN(&pkt.output_buffer_size, status.output_size);
 	packN(&pkt.output_buffer_fullness, status.output_full);
 	packN(&pkt.elapsed_seconds, ms_played / 1000);
-	// voltage;
+	if (line_in_script != NULL) {
+		packn(&pkt.voltage, 0x01); // annouce line in presence
+	}
 	packN(&pkt.elapsed_milliseconds, ms_played);
 	pkt.server_timestamp = server_timestamp; // keep this is server format - don't unpack/pack
 	// error_code;
