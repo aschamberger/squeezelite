@@ -1,4 +1,4 @@
-/* 
+/*
  *  Squeezelite - lightweight headless squeezebox emulator
  *
  *  (c) Adrian Smith 2012-2015, triode1@btinternet.com
@@ -8,7 +8,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -43,6 +43,7 @@ static log_level loglevel;
 
 static sockfd sock = -1;
 static in_addr_t slimproto_ip = 0;
+static u8_t player_id;
 
 extern struct buffer *streambuf;
 extern struct buffer *outputbuf;
@@ -124,21 +125,30 @@ static void sendHELO(bool reconnect, const char *fixed_cap, const char *var_cap,
 	#define SSL_CAP "CanHTTPS=1"
 	const char *base_cap;
 	struct HELO_packet pkt;
-	
+
 #if USE_SSL
 #if !LINKALL && !NO_SSLSYM
 	if (ssl_loaded) base_cap = SSL_CAP "," BASE_CAP;
 	else base_cap = BASE_CAP;
-#endif	
+#endif
 	base_cap = SSL_CAP "," BASE_CAP;
 #else
 	base_cap = BASE_CAP;
-#endif	
+#endif
+
+	if (!reconnect) {
+        if (line_in_script != NULL) {
+            player_id = 99; // own id
+        }
+        else {
+            player_id = 12; // squeezeplay
+        }
+    }
 
 	memset(&pkt, 0, sizeof(pkt));
 	memcpy(&pkt.opcode, "HELO", 4);
 	pkt.length = htonl(sizeof(struct HELO_packet) - 8 + strlen(base_cap) + strlen(fixed_cap) + strlen(var_cap));
-	pkt.deviceid = 12; // squeezeplay
+	pkt.deviceid = player_id;
 	pkt.revision = 0;
 	packn(&pkt.wlan_channellist, reconnect ? 0x4000 : 0x0000);
 	packN(&pkt.bytes_received_H, (u64_t)status.stream_bytes >> 32);
@@ -171,7 +181,7 @@ static void sendSTAT(const char *event, u32_t server_timestamp) {
 		LOG_SDEBUG("ms_played: 0");
 		ms_played = 0;
 	}
-	
+
 	memset(&pkt, 0, sizeof(struct STAT_packet));
 	memcpy(&pkt.opcode, "STAT", 4);
 	pkt.length = htonl(sizeof(struct STAT_packet) - 8);
@@ -292,7 +302,7 @@ static void process_strm(u8_t *pkt, int len) {
 		sendSTAT("STMf", 0);
 		buf_flush(streambuf);
 		break;
-	case 'f': 
+	case 'f':
 		{
 			decode_flush();
 			// we can have fully finished the current streaming, that's still a flush
@@ -324,7 +334,7 @@ static void process_strm(u8_t *pkt, int len) {
 			unsigned interval = unpackN(&strm->replay_gain);
 			LOCK_O;
 			output.skip_frames = interval * status.current_sample_rate / 1000;
-			output.state = OUTPUT_SKIP_FRAMES;				
+			output.state = OUTPUT_SKIP_FRAMES;
 			UNLOCK_O;
 			LOG_DEBUG("skip ahead interval: %u", interval);
 		}
@@ -347,11 +357,11 @@ static void process_strm(u8_t *pkt, int len) {
 			char *header = (char *)(pkt + sizeof(struct strm_packet));
 			in_addr_t ip = (in_addr_t)strm->server_ip; // keep in network byte order
 			u16_t port = strm->server_port; // keep in network byte order
-			if (ip == 0) ip = slimproto_ip; 
+			if (ip == 0) ip = slimproto_ip;
 
-			LOG_DEBUG("strm s autostart: %c transition period: %u transition type: %u codec: %c", 
+			LOG_DEBUG("strm s autostart: %c transition period: %u transition type: %u codec: %c",
 					  strm->autostart, strm->transition_period, strm->transition_type - '0', strm->format);
-			
+
 			autostart = strm->autostart - '0';
 
 			sendSTAT("STMf", 0);
@@ -373,7 +383,7 @@ static void process_strm(u8_t *pkt, int len) {
 				stream_file(header, header_len, strm->threshold * 1024);
 				autostart -= 2;
 			} else {
-				stream_sock(ip, port, strm->flags & 0x20, 
+				stream_sock(ip, port, strm->flags & 0x20,
 						    strm->format == 'o' || strm->format == 'u' || (strm->format == 'f' && strm->pcm_sample_size == 'o'),
 							header, header_len, strm->threshold * 1024, autostart >= 2);
 			}
@@ -447,6 +457,11 @@ static void process_audg(u8_t *pkt, int len) {
 	set_volume(audg->adjust ? audg->gainL : FIXED_ONE, audg->adjust ? audg->gainR : FIXED_ONE);
 }
 
+static void process_dsco(u8_t *pkt, int len) {
+	LOG_INFO("got DSCO, switching from id %u to 12", (int) player_id);
+	player_id = 12; // squeezeplay
+}
+
 static void process_setd(u8_t *pkt, int len) {
 	struct setd_packet *setd = (struct setd_packet *)pkt;
 
@@ -485,7 +500,7 @@ static void process_serv(u8_t *pkt, int len) {
 
 	unsigned slimproto_port = 0;
 	char squeezeserver[] = SQUEEZENETWORK;
-	
+
 	if(pkt[4] == 0 && pkt[5] == 0 && pkt[6] == 0 && pkt[7] == 1) {
 		server_addr(squeezeserver, &new_server, &slimproto_port);
 	} else {
@@ -506,7 +521,7 @@ static void process_serv(u8_t *pkt, int len) {
 			free(new_server_cap);
 			new_server_cap = NULL;
 		}
-	}		
+	}
 }
 
 struct handler {
@@ -522,6 +537,7 @@ static struct handler handlers[] = {
 	{ "audg", process_audg },
 	{ "setd", process_setd },
 	{ "serv", process_serv },
+	{ "dsco", process_dsco },
 	{ "",     NULL  },
 };
 
@@ -557,7 +573,7 @@ static void slimproto_run() {
 		event_type ev;
 
 		if ((ev = wait_readwake(ehandles, 1000)) != EVENT_TIMEOUT) {
-	
+
 			if (ev == EVENT_READ) {
 
 				if (expect > 0) {
@@ -645,13 +661,13 @@ static void slimproto_run() {
 			status.stream_size = streambuf->size;
 			status.stream_bytes = stream.bytes;
 			status.stream_state = stream.state;
-						
+
 			if (stream.state == DISCONNECT) {
 				disconnect_code = stream.disconnect;
 				stream.state = STOPPED;
 				_sendDSCO = true;
 			}
-			if (!stream.sent_headers && 
+			if (!stream.sent_headers &&
 				(stream.state == STREAMING_HTTP || stream.state == STREAMING_WAIT || stream.state == STREAMING_BUFFERING)) {
 				header_len = stream.header_len;
 				memcpy(header, stream.header, header_len);
@@ -690,7 +706,7 @@ static void slimproto_run() {
 			}
 			_decode_state = decode.state;
 			UNLOCK_D;
-			
+
 			LOCK_O;
 			status.output_full = _buf_used(outputbuf);
 			status.output_size = outputbuf->size;
@@ -698,7 +714,7 @@ static void slimproto_run() {
 			status.current_sample_rate = output.current_sample_rate;
 			status.updated = output.updated;
 			status.device_frames = output.device_frames;
-			
+
 			if (output.track_started) {
 				_sendSTMs = true;
 				output.track_started = false;
@@ -886,7 +902,7 @@ void slimproto(log_level level, char *server, u8_t mac[6], const char *name, con
 #else
 			 ((maxSampleRate > 0 && maxSampleRate < output.supported_rates[0]) ? maxSampleRate : output.supported_rates[0]));
 #endif
-	
+
 	for (i = 0; i < MAX_CODECS; i++) {
 		if (codecs[i] && codecs[i]->id && strlen(fixed_cap) < FIXED_CAP_LEN - 10) {
 			strcat(fixed_cap, ",");
