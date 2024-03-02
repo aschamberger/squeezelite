@@ -114,6 +114,9 @@ static void usage(const char *argv0) {
 #if GPIO
 			"  -S <Power Script>\tAbsolute path to script to launch on power commands from LMS\n"
 #endif
+#if LINE_IN
+			"  -T <Line in Script>\tAbsolute path to script to launch on line in commands from LMS\n"
+#endif
 #if RESAMPLE
 		   "  -R -u [params]\tResample, params = <recipe>:<flags>:<attenuation>:<precision>:<passband_end>:<stopband_start>:<phase_response>,\n" 
 		   "  \t\t\t recipe = (v|h|m|l|q)(L|I|M)(s) [E|X], E = exception - resample only if native rate not supported, X = async - resample to max rate for device, otherwise to max sync rate\n"
@@ -223,6 +226,9 @@ static void usage(const char *argv0) {
 #endif
 #if RPI
 		   " RPI"
+#endif
+#if LINE_IN
+		   " LINE_IN"
 #endif
 #if DSD
 		   " DSD"
@@ -391,6 +397,9 @@ int main(int argc, char **argv) {
 #endif
 #if GPIO
 						  "S"
+#endif
+#if LINE_IN
+						  "T"
 #endif
 
 						  , opt)) {
@@ -678,11 +687,28 @@ int main(int argc, char **argv) {
 					exit(1);
 				}
 			} else {
-				fprintf(stderr, "No Script Name Given.\n\n");
+				fprintf(stderr, "No Power Script Name Given.\n\n");
 				usage(argv[0]);
 				exit(1);
 			}
 			relay_script(0);
+			break;
+#endif
+#if LINE_IN
+		case 'T':
+			if (optind < argc && argv[optind] && argv[optind][0] != '-') {
+				line_in_script = argv[optind++];
+				if( access( line_in_script, R_OK|X_OK ) == -1 ) {
+				    // file doesn't exist
+					fprintf(stderr, "Script %s, not found\n\n", argv[optind-1]);
+					usage(argv[0]);
+					exit(1);
+				}
+			} else {
+				fprintf(stderr, "No Line in Script Name Given.\n\n");
+				usage(argv[0]);
+				exit(1);
+			}
 			break;
 #endif
 #if LINUX || FREEBSD || SUN

@@ -14,6 +14,7 @@ OPT_VIS        = -DVISEXPORT
 OPT_IR         = -DIR
 OPT_GPIO       = -DGPIO
 OPT_RPI        = -DRPI
+OPT_LINE_IN    = -DLINE_IN
 OPT_NO_FAAD    = -DNO_FAAD
 OPT_NO_MAD     = -DNO_MAD
 OPT_NO_MPG123  = -DNO_MPG123
@@ -35,6 +36,7 @@ SOURCES_RESAMPLE = process.c resample.c
 SOURCES_VIS      = output_vis.c
 SOURCES_IR       = ir.c
 SOURCES_GPIO     = gpio.c
+SOURCES_LINE_IN  = line_in.c
 SOURCES_FAAD     = faad.c
 SOURCES_SSL      = sslsym.c
 SOURCES_OPUS     = opus.c
@@ -94,6 +96,9 @@ ifeq (,$(findstring $(SOURCES_GPIO), $(SOURCES)))
 	OPTS += $(OPT_GPIO)
 	SOURCES += $(SOURCES_GPIO)
 endif
+endif
+ifneq (,$(findstring $(OPT_LINE_IN), $(OPTS)))
+	SOURCES += $(SOURCES_LINE_IN)
 endif
 ifeq (,$(findstring $(OPT_NO_FAAD), $(OPTS)))
 	SOURCES += $(SOURCES_FAAD)

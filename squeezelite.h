@@ -799,6 +799,12 @@ void gpio_close();
 #endif // RPI
 #endif //GPIO
 
+// line_in.c
+#if LINE_IN
+void line_in_script(int state, int volume);
+char *line_in_script;
+#endif //LINE_IN
+
 // ir.c
 #if IR
 struct irstate {
