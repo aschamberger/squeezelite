@@ -35,7 +35,7 @@ static int line_in_state = -1;
 char *cmdline;
 int argloc;
 
-void line_in_script(int state, int volume) {
+int line_in_script(int state, int volume) {
     int err;
 
     if (cmdline == NULL){
@@ -44,6 +44,23 @@ void line_in_script(int state, int volume) {
         strcpy(cmdline, line_in_script);
     }
 
+    // get volume level
+    if (state == 3){
+        strcat(cmdline + argloc, " 1");
+        pf = popen(cmdline,"r");
+
+        if (!pf){
+            fprintf (stderr, "%s could not open pipe for output\n", cmdline);
+        }
+        
+        fscanf(pf, "%d", &volume);
+
+        if (pclose(pf) != 0){
+            fprintf (stderr, "%s failed to close command stream\n", cmdline);
+        }
+
+        return volume;
+    }
     // set volume level
     if (state == 2){
         if( (volume >= 0) && (volume <= 100)){
@@ -51,6 +68,7 @@ void line_in_script(int state, int volume) {
             if ((err = system(cmdline)) != 0){
                 fprintf (stderr, "%s exit status = %d\n", cmdline, err);
             }
+            return volume;
         }
         else {
             fprintf (stderr, "invalid volume level given = %i\n", volume);
@@ -64,6 +82,7 @@ void line_in_script(int state, int volume) {
         }
         else {
             line_in_state = 1;
+            return 1;
         }
     }
     // turn off line in
@@ -74,8 +93,11 @@ void line_in_script(int state, int volume) {
         }
         else {
             line_in_state = 0;
+            return 1;
         }
     }
+    
+    return -1;
 }
 
 #endif // LINE_IN

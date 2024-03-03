@@ -5,7 +5,8 @@
 # squeezelite sets $1 to
 #   0: off
 #   1: on
-#   2: level
+#   2: level set
+#   3: level get
 
 DEBUG_LINE_IN_SCRIPT="on"
 MIXER_DEVICE_LINE="snda"
@@ -23,7 +24,12 @@ else
 fi
 
 case $1 in
-    # level
+    # level get
+    3)
+        amixer -D $MIXER_DEVICE_LINE sget $SOFTVOL_CONTROL_LINE | awk -F"[][]" '/Left:/ { print substr($2, 1, length($2)-1) }'
+        exit
+        ;;
+    # level set
     2)
         echo "Set volume of $SOFTVOL_CONTROL_LINE to: $2%."
         if [[ ! -z "$2" && $((10#$2)) -ge 0 && $((10#$2)) -le 100 ]]; then
