@@ -146,7 +146,7 @@ struct audg_packet {
 	// squence ids - unused
 };
 
-#IF LINE_IN
+#if LINE_IN
 // S:P:Boom
 struct audp_packet {
 	char  opcode[4];
