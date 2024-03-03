@@ -269,6 +269,23 @@ static void sendSETDName(const char *name) {
 	send_packet((u8_t *)name, strlen(name) + 1);
 }
 
+#if LINE_IN
+static void sendSETDLineIn(const char *volume) {
+	struct SETD_header pkt_header;
+
+	memset(&pkt_header, 0, sizeof(pkt_header));
+	memcpy(&pkt_header.opcode, "SETD", 4);
+
+	pkt_header.id = 254; // @see plugin get/setLineInLevel
+	pkt_header.length = htonl(sizeof(pkt_header) + strlen(volume) + 1 - 8);
+
+	LOG_DEBUG("set line in volume level: %d", volume);
+
+	send_packet((u8_t *)&pkt_header, sizeof(pkt_header));
+	send_packet((u8_t *)volume, strlen(volume) + 1);
+}
+#endif
+
 #if IR
 void sendIR(u32_t code, u32_t ts) {
 	struct IR_packet pkt;
@@ -492,6 +509,25 @@ static void process_setd(u8_t *pkt, int len) {
 			}
 		}
 	}
+#if LINE_IN
+	// handle line in volume query and change 
+	else if (setd->id == 254) { // @see plugin get/setLineInLevel
+        if (line_in_script != NULL) {
+            if (len == 5) {
+                // get level
+                char *level;
+                sprintf(level, "%d", line_in_script(3, NULL));
+                sendSETDLineIn(level);
+            } else if (len > 5) {
+                LOG_INFO("set line in level: %s", setd->data);
+                // confirm change to server
+                sendSETDLineIn(setd->data);
+                // set new level
+                line_in_script(2, atoi(setd->data))
+            }
+        }
+    }
+#endif
 }
 
 #define SYNC_CAP ",SyncgroupID="
