@@ -146,6 +146,14 @@ struct audg_packet {
 	// squence ids - unused
 };
 
+#IF LINE_IN
+// S:P:Boom
+struct audp_packet {
+	char  opcode[4];
+	u8_t  input;
+};
+#endif
+
 // S:P:Squeezebox2
 struct cont_packet {
 	char  opcode[4];

@@ -476,6 +476,16 @@ static void process_audg(u8_t *pkt, int len) {
 	set_volume(audg->adjust ? audg->gainL : FIXED_ONE, audg->adjust ? audg->gainR : FIXED_ONE);
 }
 
+#IF LINE_IN
+static void process_audp(u8_t *pkt, int len) {
+	struct audp_packet *audp = (struct audp_packet *)pkt;
+
+	LOG_DEBUG("audp: %d", audp->input);
+
+	line_in_script(audp->input, NULL);
+}
+#endif
+
 static void process_dsco(u8_t *pkt, int len) {
 	LOG_INFO("got DSCO, switching from id %u to 12", (int) player_id);
 	player_id = 12; // squeezeplay
@@ -573,6 +583,9 @@ static struct handler handlers[] = {
 	{ "codc", process_codc },
 	{ "aude", process_aude },
 	{ "audg", process_audg },
+#if LINE_IN
+	{ "audp", process_audp },
+#endif
 	{ "setd", process_setd },
 	{ "serv", process_serv },
 	{ "dsco", process_dsco },
