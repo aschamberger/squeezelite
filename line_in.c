@@ -37,6 +37,7 @@ int argloc;
 
 int line_in_command(int command, int volume) {
     int err;
+    FILE *pf;
 
     if (cmdline == NULL){
         argloc = strlen(line_in_script);
