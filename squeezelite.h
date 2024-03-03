@@ -801,7 +801,7 @@ void gpio_close();
 
 // line_in.c
 #if LINE_IN
-void line_in_script(int state, int volume);
+int line_in_script(int state, int volume);
 char *line_in_script;
 #endif //LINE_IN
 
