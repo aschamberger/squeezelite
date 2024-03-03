@@ -137,12 +137,16 @@ static void sendHELO(bool reconnect, const char *fixed_cap, const char *var_cap,
 #endif
 
 	if (!reconnect) {
+#if LINE_IN
         if (line_in_script != NULL) {
             player_id = 99; // own id
         }
         else {
+#endif
             player_id = 12; // squeezeplay
+#if LINE_IN
         }
+#endif
     }
 
 	memset(&pkt, 0, sizeof(pkt));
