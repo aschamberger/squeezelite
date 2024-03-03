@@ -488,7 +488,7 @@ static void process_audp(u8_t *pkt, int len) {
 
 	LOG_DEBUG("audp: %d", audp->input);
 
-	line_in_script(audp->input, NULL);
+	line_in_command(audp->input, NULL);
 }
 #endif
 
@@ -532,14 +532,14 @@ static void process_setd(u8_t *pkt, int len) {
             if (len == 5) {
                 // get level
                 char *level;
-                sprintf(level, "%d", line_in_script(3, NULL));
+                sprintf(level, "%d", line_in_command(3, NULL));
                 sendSETDLineIn(level);
             } else if (len > 5) {
                 LOG_INFO("set line in level: %s", setd->data);
                 // confirm change to server
                 sendSETDLineIn(setd->data);
                 // set new level
-                line_in_script(2, atoi(setd->data))
+                line_in_command(2, atoi(setd->data))
             }
         }
     }
