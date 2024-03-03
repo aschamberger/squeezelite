@@ -35,7 +35,7 @@ static int line_in_state = -1;
 char *cmdline;
 int argloc;
 
-int line_in_script(int state, int volume) {
+int line_in_command(int command, int volume) {
     int err;
 
     if (cmdline == NULL){
@@ -45,7 +45,7 @@ int line_in_script(int state, int volume) {
     }
 
     // get volume level
-    if (state == 3){
+    if (command == 3){
         strcat(cmdline + argloc, " 1");
         pf = popen(cmdline,"r");
 
@@ -62,7 +62,7 @@ int line_in_script(int state, int volume) {
         return volume;
     }
     // set volume level
-    if (state == 2){
+    if (command == 2){
         if( (volume >= 0) && (volume <= 100)){
             sprintf(cmdline + argloc, " 2 %d", volume);
             if ((err = system(cmdline)) != 0){
@@ -75,7 +75,7 @@ int line_in_script(int state, int volume) {
         }
     }
     // turn on line in
-    else if( (state == 1) && (line_in_state != 1)){
+    else if( (command == 1) && (line_in_state != 1)){
         strcat(cmdline + argloc, " 1");
         if ((err = system(cmdline)) != 0){
             fprintf (stderr, "%s exit status = %d\n", cmdline, err);
@@ -86,7 +86,7 @@ int line_in_script(int state, int volume) {
         }
     }
     // turn off line in
-    else if( (state == 0) && (line_in_state != 0)){
+    else if( (command == 0) && (line_in_state != 0)){
         strcat(cmdline + argloc, " 0");
         if ((err = system(cmdline)) != 0){
             fprintf (stderr, "%s exit status = %d\n", cmdline, err);
