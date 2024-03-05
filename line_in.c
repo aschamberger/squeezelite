@@ -47,7 +47,7 @@ int line_in_command(int command, int volume) {
 
     // get volume level
     if (command == 3){
-        strcat(cmdline + argloc, " 1");
+        strcat(cmdline + argloc, " 3");
         pf = popen(cmdline,"r");
 
         if (!pf){
