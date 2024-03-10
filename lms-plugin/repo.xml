@@ -4,7 +4,7 @@
     <plugin version="0.100" name="Squeezelite" minTarget="8.4" maxTarget="*">
       <link>https://github.com/aschamberger/squeezelite</link>
       <creator>Andreas</creator>
-      <sha>9c46aa1ab8481ecb9f4c8e363c55811e35f787af</sha>
+      <sha>070bbfcd51b0023816fe8997c5428d19535b86be</sha>
       <email>mail@andreass.net</email>
       <desc lang="EN">SqueezeLite additional player id (99)</desc>
       <url>http://raw.githubusercontent.com/aschamberger/squeezelite/linein/lms-plugin/SqueezeLite.zip</url>
