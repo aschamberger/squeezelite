@@ -801,7 +801,7 @@ void gpio_close();
 
 // line_in.c
 #if LINE_IN
-int line_in_command(int command, int volume);
+u8_t line_in_command(u8_t command, u8_t volume);
 char *line_in_script;
 #endif //LINE_IN
 
