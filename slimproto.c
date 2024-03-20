@@ -276,19 +276,19 @@ static void sendSETDName(const char *name) {
 }
 
 #if LINE_IN
-static void sendSETDLineIn(const char *volume) {
+static void sendSETDLineIn(const u8_t volume) {
 	struct SETD_header pkt_header;
 
 	memset(&pkt_header, 0, sizeof(pkt_header));
 	memcpy(&pkt_header.opcode, "SETD", 4);
 
 	pkt_header.id = 254; // @see plugin get/setLineInLevel
-	pkt_header.length = htonl(sizeof(pkt_header) + strlen(volume) + 1 - 8);
+	pkt_header.length = htonl(sizeof(pkt_header) + 1 - 8);
 
-	LOG_DEBUG("set line in volume level: %d", volume);
+	LOG_DEBUG("set line in volume level: %i", volume);
 
 	send_packet((u8_t *)&pkt_header, sizeof(pkt_header));
-	send_packet((u8_t *)volume, strlen(volume) + 1);
+	send_packet((u8_t)volume, 1);
 }
 #endif
 
@@ -531,15 +531,14 @@ static void process_setd(u8_t *pkt, int len) {
         if (line_in_script != NULL) {
             if (len == 5) {
                 // get level
-                char *level;
-                sprintf(level, "%d", line_in_command(3, -1));
+                const u8_t level = line_in_command(3, -1);
                 sendSETDLineIn(level);
             } else if (len > 5) {
                 LOG_INFO("set line in level: %s", setd->data);
                 // confirm change to server
                 sendSETDLineIn(setd->data);
                 // set new level
-                line_in_command(2, atoi(setd->data));
+                line_in_command(2, setd->data);
             }
         }
     }

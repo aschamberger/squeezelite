@@ -35,7 +35,7 @@ static int line_in_state = -1;
 char *cmdline;
 int argloc;
 
-int line_in_command(int command, int volume) {
+u8_t line_in_command(u8_t command, u8_t volume) {
     int err;
     FILE *pf;
 
