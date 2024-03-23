@@ -48,19 +48,22 @@ u8_t line_in_command(u8_t command, u8_t volume) {
     // get volume level
     if (command == 3){
         strcat(cmdline + argloc, " 3");
+        fprintf (stdout, "cmdline: %s\n", cmdline);
         pf = popen(cmdline,"r");
 
         if (!pf){
             fprintf (stderr, "%s could not open pipe for output\n", cmdline);
         }
         
-        fscanf(pf, "%u", &volume);
+        char buffer[3];
+        fgets(buffer, 3, pf);
+        fprintf (stdout, "result: %s\n", buffer);
 
         if (pclose(pf) != 0){
             fprintf (stderr, "%s failed to close command stream\n", cmdline);
         }
 
-        return volume;
+        return (u8_t)atoi(buffer);
     }
     // set volume level
     if (command == 2){
@@ -98,7 +101,7 @@ u8_t line_in_command(u8_t command, u8_t volume) {
         }
     }
     
-    return -1;
+    return 0;
 }
 
 #endif // LINE_IN

@@ -288,7 +288,7 @@ static void sendSETDLineIn(const u8_t volume) {
 	LOG_DEBUG("set line in volume level: %i", volume);
 
 	send_packet((u8_t *)&pkt_header, sizeof(pkt_header));
-	send_packet((u8_t *)volume, 1);
+	send_packet((u8_t *)&volume, 1);
 }
 #endif
 
@@ -488,7 +488,7 @@ static void process_audp(u8_t *pkt, int len) {
 
 	LOG_DEBUG("audp: %d", audp->input);
 
-	line_in_command(audp->input, -1);
+	line_in_command(audp->input, 0);
 }
 #endif
 
@@ -531,7 +531,7 @@ static void process_setd(u8_t *pkt, int len) {
         if (line_in_script != NULL) {
             if (len == 5) {
                 // get level
-                const u8_t level = line_in_command(3, -1);
+                const u8_t level = line_in_command(3, 0);
                 sendSETDLineIn(level);
             } else if (len > 5) {
                 LOG_INFO("set line in level: %s", setd->data);
