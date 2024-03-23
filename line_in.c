@@ -32,27 +32,27 @@
 // Holds current status to avoid starting line in script multiple times
 static int line_in_state = -1;
 
-char *cmdline;
-int argloc;
+char *cmdline_line;
+int argloc_line;
 
 u8_t line_in_command(u8_t command, u8_t volume) {
     int err;
     FILE *pf;
 
-    if (cmdline == NULL){
-        argloc = strlen(line_in_script);
-        cmdline = (char*) malloc(argloc+2+4+1);
-        strcpy(cmdline, line_in_script);
+    if (cmdline_line == NULL){
+        argloc_line = strlen(line_in_script);
+        cmdline_line = (char*) malloc(argloc_line+2+4+1);
+        strcpy(cmdline_line, line_in_script);
     }
 
     // get volume level
     if (command == 3){
-        strcat(cmdline + argloc, " 3");
-        fprintf (stdout, "cmdline: %s\n", cmdline);
-        pf = popen(cmdline,"r");
+        strcat(cmdline_line + argloc_line, " 3");
+        fprintf (stdout, "cmdline_line: %s\n", cmdline_line);
+        pf = popen(cmdline_line,"r");
 
         if (!pf){
-            fprintf (stderr, "%s could not open pipe for output\n", cmdline);
+            fprintf (stderr, "%s could not open pipe for output\n", cmdline_line);
         }
         
         char buffer[3];
@@ -60,7 +60,7 @@ u8_t line_in_command(u8_t command, u8_t volume) {
         fprintf (stdout, "result: %s\n", buffer);
 
         if (pclose(pf) != 0){
-            fprintf (stderr, "%s failed to close command stream\n", cmdline);
+            fprintf (stderr, "%s failed to close command stream\n", cmdline_line);
         }
 
         return (u8_t)atoi(buffer);
@@ -68,9 +68,9 @@ u8_t line_in_command(u8_t command, u8_t volume) {
     // set volume level
     if (command == 2){
         if( (volume >= 0) && (volume <= 100)){
-            sprintf(cmdline + argloc, " 2 %d", volume);
-            if ((err = system(cmdline)) != 0){
-                fprintf (stderr, "%s exit status = %d\n", cmdline, err);
+            sprintf(cmdline_line + argloc_line, " 2 %d", volume);
+            if ((err = system(cmdline_line)) != 0){
+                fprintf (stderr, "%s exit status = %d\n", cmdline_line, err);
             }
             return volume;
         }
@@ -80,9 +80,9 @@ u8_t line_in_command(u8_t command, u8_t volume) {
     }
     // turn on line in
     else if( (command == 1) && (line_in_state != 1)){
-        strcat(cmdline + argloc, " 1");
-        if ((err = system(cmdline)) != 0){
-            fprintf (stderr, "%s exit status = %d\n", cmdline, err);
+        strcat(cmdline_line + argloc_line, " 1");
+        if ((err = system(cmdline_line)) != 0){
+            fprintf (stderr, "%s exit status = %d\n", cmdline_line, err);
         }
         else {
             line_in_state = 1;
@@ -91,9 +91,9 @@ u8_t line_in_command(u8_t command, u8_t volume) {
     }
     // turn off line in
     else if( (command == 0) && (line_in_state != 0)){
-        strcat(cmdline + argloc, " 0");
-        if ((err = system(cmdline)) != 0){
-            fprintf (stderr, "%s exit status = %d\n", cmdline, err);
+        strcat(cmdline_line + argloc_line, " 0");
+        if ((err = system(cmdline_line)) != 0){
+            fprintf (stderr, "%s exit status = %d\n", cmdline_line, err);
         }
         else {
             line_in_state = 0;
