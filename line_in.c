@@ -54,7 +54,7 @@ u8_t line_in_command(u8_t command, u8_t volume) {
             fprintf (stderr, "%s could not open pipe for output\n", cmdline);
         }
         
-        fscanf(pf, "%d", &volume);
+        fscanf(pf, "%u", &volume);
 
         if (pclose(pf) != 0){
             fprintf (stderr, "%s failed to close command stream\n", cmdline);
