@@ -288,7 +288,7 @@ static void sendSETDLineIn(const u8_t volume) {
 	LOG_DEBUG("set line in volume level: %i", volume);
 
 	send_packet((u8_t *)&pkt_header, sizeof(pkt_header));
-	send_packet((u8_t *)&volume, 1);
+	send_packet((u8_t *)volume, 1);
 }
 #endif
 
