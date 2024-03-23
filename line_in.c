@@ -55,8 +55,8 @@ u8_t line_in_command(u8_t command, u8_t volume) {
             fprintf (stderr, "%s could not open pipe for output\n", cmdline_line);
         }
         
-        char buffer[3];
-        fgets(buffer, 3, pf);
+        char buffer[4];
+        fgets(buffer, 4, pf);
         fprintf (stdout, "result: %s\n", buffer);
 
         if (pclose(pf) != 0){
