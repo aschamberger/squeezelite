@@ -282,7 +282,7 @@ static void sendSETDLineIn(const u8_t volume) {
 	memset(&pkt_header, 0, sizeof(pkt_header));
 	memcpy(&pkt_header.opcode, "SETD", 4);
 
-	pkt_header.id = 254; // @see plugin get/setLineInLevel
+	pkt_header.id = (u8_t)254; // @see plugin get/setLineInLevel
 	pkt_header.length = htonl(sizeof(pkt_header) + 1 - 8);
 
 	LOG_DEBUG("set line in volume level: %i", volume);
