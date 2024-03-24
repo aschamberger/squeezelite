@@ -534,7 +534,7 @@ static void process_setd(u8_t *pkt, int len) {
                 const u8_t level = line_in_command(3, 0);
                 sendSETDLineIn(level);
             } else if (len > 5) {
-                LOG_INFO("set line in level: %u", setd->data[0]);
+                LOG_INFO("set line in level: %s", setd->data);
                 // confirm change to server
                 sendSETDLineIn((u8_t)setd->data[0]);
                 // set new level
