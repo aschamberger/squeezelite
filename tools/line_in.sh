@@ -1,18 +1,19 @@
 #!/bin/sh
 
 # squeezelite line in script
-# squeezelite -T /path/to/linein.sh
+# squeezelite -T /path/to/line_in.sh
 # squeezelite sets $1 to
-#   0: off
-#   1: on
+#   0: line in off
+#   1: line in on
 #   2: level set
 #   3: level get
 
-DEBUG_LINE_IN_SCRIPT="on"
-MIXER_DEVICE_LINE="snda"
-VOLUME_CONTROL_LINE="SoftVolLi1"
-INPUT_DEVICE="li1_sv"
-OUTPUT_DEVICE="ch3_eq"
+# set via env vars or uncomment and change values
+#DEBUG_LINE_IN_SCRIPT="on"
+#MIXER_DEVICE_LINE="snda"
+#VOLUME_CONTROL_LINE="SoftVolLi1"
+#INPUT_DEVICE="li1_sv"
+#OUTPUT_DEVICE="ch3_eq"
 
 PID_FILE="${PID_FILE:-/run/line_in.pid}"
 
