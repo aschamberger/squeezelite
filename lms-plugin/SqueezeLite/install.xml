@@ -1,0 +1,15 @@
+<?xml version='1.0' standalone='yes'?>
+<extensions>
+  <defaultState>enabled</defaultState>
+  <email>mail@andreass.net</email>
+  <targetApplication>
+    <minVersion>8.4</minVersion>
+    <maxVersion>*</maxVersion>
+    <id>SlimServer</id>
+  </targetApplication>
+  <name>PLUGIN_SQUEEZELITE</name>
+  <description>PLUGIN_SQUEEZELITE_DESC</description>
+  <module>Plugins::SqueezeLite::Plugin</module>
+    <version>0.100</version>
+  <creator>Andreas</creator>
+</extensions>
