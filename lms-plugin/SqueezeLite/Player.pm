@@ -46,8 +46,6 @@ $prefs->setChange(\&setLineInLevel, 'lineInLevel');
 	
 # }, 'lineInAlwaysOn');
 
-my $handlersAdded;
-
 sub model { 'squeezelite' }
 sub modelName { 'SqueezeLite' }
 
@@ -55,31 +53,6 @@ sub hasLineIn { 1 }
 
 sub init {
 	my $client = shift;
-
-	if (!$handlersAdded) {
-
-		# Add a handler for line-in/out status changes
-		Slim::Networking::Slimproto::addHandler( LIOS => \&lineInOutStatus );
-
-		# Create a new event for sending LIOS updates
-		Slim::Control::Request::addDispatch(
-			['lios', '_state'],
-			[1, 0, 0, undef],
-		   );
-
-		Slim::Control::Request::addDispatch(
-			['lios', 'linein', '_state'],
-			[1, 0, 0, undef],
-		   );
-
-		Slim::Control::Request::addDispatch(
-			['lios', 'lineout', '_state'],
-			[1, 0, 0, undef],
-		   );
-
-		$handlersAdded = 1;
-
-	}
 
 	$client->SUPER::init(@_);
 
@@ -256,32 +229,6 @@ sub lineInConnected {
 sub lineOutConnected {
 	my $state = Slim::Networking::Slimproto::voltage(shift) || return 0;
 	return $state & 0x02 || 0;
-}
-
-sub lineInOutStatus {
-	my ( $client, $data_ref ) = @_;
-
-	my $state = unpack 'n', $$data_ref;
-
-	my $oldState = {
-		in  => $client->lineInConnected(),
-		out => $client->lineOutConnected(),
-	};
-
-	Slim::Networking::Slimproto::voltage( $client, $state );
-
-	Slim::Control::Request::notifyFromArray( $client, [ 'lios', $state ] );
-
-	if ($oldState->{in} != $client->lineInConnected()) {
-		Slim::Control::Request::notifyFromArray( $client, [ 'lios', 'linein', $client->lineInConnected() ] );
-		if ( Slim::Utils::PluginManager->isEnabled('Slim::Plugin::LineIn::Plugin')) {
-			Slim::Plugin::LineIn::Plugin::lineInItem($client, 1);
-		}
-	}
-
-	if ($oldState->{out} != $client->lineOutConnected()) {
-		Slim::Control::Request::notifyFromArray( $client, [ 'lios', 'lineout', $client->lineOutConnected() ] );
-	}
 }
 
 1;
