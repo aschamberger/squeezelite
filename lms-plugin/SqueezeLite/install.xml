@@ -10,6 +10,6 @@
   <name>PLUGIN_SQUEEZELITE</name>
   <description>PLUGIN_SQUEEZELITE_DESC</description>
   <module>Plugins::SqueezeLite::Plugin</module>
-    <version>0.100</version>
+    <version>0.9.0</version>
   <creator>Andreas</creator>
 </extensions>
