@@ -1,12 +1,16 @@
 #!/bin/sh
 
 # squeezelite line in script
-# squeezelite -T /path/to/line_in.sh
+# squeezelite -T /path/to/line_in.sh -O mixer_device -V volume_control
 # squeezelite sets $1 to
 #   0: line in off
 #   1: line in on
 #   2: level set
 #   3: level get
+#
+# It is required to not use software volume control within squeezelite to 
+# be able to adjust also the volume from LMS during playback from line in.
+# I.e. setting "-O <mixer device>" and "-V <volume control>"
 
 # set via env vars or uncomment and change values
 #DEBUG_LINE_IN_SCRIPT="on"
