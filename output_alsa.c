@@ -252,23 +252,9 @@ static void set_mixer(bool setmax, float ldB, float rdB) {
         LOG_DEBUG("setting vol raw [%ld..%ld]", alsa.mixer_min, alsa.mixer_max);
         if ((err = snd_mixer_selem_set_playback_volume(alsa.mixer_elem, SND_MIXER_SCHN_FRONT_LEFT, lraw)) < 0) {
             LOG_ERROR("error setting left volume: %s", snd_strerror(err));
-            if (mixer_init_alsa(alsa.mixer_ctl, alsa.volume_mixer_name, 0) < 0) {
-                LOG_ERROR("re-initialization of mixer failed");
-            } else {
-                if ((err = snd_mixer_selem_set_playback_volume(alsa.mixer_elem, SND_MIXER_SCHN_FRONT_LEFT, lraw)) < 0) {
-                    LOG_ERROR("error setting left volume after re-initialization: %s", snd_strerror(err));
-                }
-            }
         }
         if ((err = snd_mixer_selem_set_playback_volume(alsa.mixer_elem, SND_MIXER_SCHN_FRONT_RIGHT, rraw)) < 0) {
             LOG_ERROR("error setting right volume: %s", snd_strerror(err));
-            if (mixer_init_alsa(alsa.mixer_ctl, alsa.volume_mixer_name, 0) < 0) {
-                LOG_ERROR("re-initialization of mixer failed");
-            } else {
-                if ((err = snd_mixer_selem_set_playback_volume(alsa.mixer_elem, SND_MIXER_SCHN_FRONT_RIGHT, rraw)) < 0) {
-                    LOG_ERROR("error setting right volume after re-initialization: %s", snd_strerror(err));
-                }
-            }
         }
 	} else {
 		// set db directly
