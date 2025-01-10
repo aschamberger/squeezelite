@@ -938,6 +938,8 @@ void output_init_alsa(log_level level, const char *device, unsigned output_buf_s
 	if (m) alsa_mmap = atoi(m);
 	if (r) alsa_reopen = atoi(r);
 
+	extern bool user_rates;
+
 	loglevel = level;
 
 	LOG_INFO("init output");
@@ -990,9 +992,11 @@ void output_init_alsa(log_level level, const char *device, unsigned output_buf_s
 	        if (mixer_init_alsa(alsa.mixer_ctl, alsa.volume_mixer_name, volume_mixer_index ?
 			atoi(volume_mixer_index) : 0) < 0)
 		{
-			LOG_ERROR("Initialization of mixer failed, reverting to software volume");
-			alsa.mixer_handle = NULL;
-			alsa.volume_mixer_name = NULL;
+			if ( !user_rates ) {
+				LOG_ERROR("Initialization of mixer failed, reverting to software volume");
+				alsa.mixer_handle = NULL;
+				alsa.volume_mixer_name = NULL;
+			}
 		}
 	}
 	if (mixer_unmute && alsa.volume_mixer_name) {
